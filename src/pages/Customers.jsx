@@ -7,10 +7,20 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  requestGetCustomers,
+  selectDataCustomer,
+} from "../features/customer/customerSlice";
 
 const Customers = () => {
   const { classes } = makeStyles();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(requestGetCustomers());
+  }, []);
 
   return (
     <Stack>
@@ -32,25 +42,19 @@ const SearchCustomer = () => {
 };
 
 const ListCustomers = () => {
-  const elements = [
-    { id: 1, join: "04/04/2023", email: "thangvui2002@gmail.com", action: "" },
-    { id: 2, join: "04/04/2023", email: "thangvui2002@gmail.com", action: "" },
-    { id: 3, join: "04/04/2023", email: "thangvui2002@gmail.com", action: "" },
-    { id: 4, join: "04/04/2023", email: "thangvui2002@gmail.com", action: "" },
-  ];
+  const listData = useSelector(selectDataCustomer);
+
   const ths = (
     <tr>
       <th>ID</th>
-      <th>JOINING DATE</th>
       <th>EMAIL</th>
       <th>ACTION</th>
     </tr>
   );
 
-  const rows = elements.map((element) => (
-    <tr key={element.id}>
-      <td>{element.id}</td>
-      <td>{element.join}</td>
+  const rows = listData?.map((element) => (
+    <tr key={element._id}>
+      <td>{element._id}</td>
       <td>{element.email}</td>
       <td>{element.action}</td>
     </tr>
@@ -62,8 +66,6 @@ const ListCustomers = () => {
         <thead>{ths}</thead>
         <tbody>{rows}</tbody>
       </Table>
-
-      <Pagination total={10} />
     </Stack>
   );
 };

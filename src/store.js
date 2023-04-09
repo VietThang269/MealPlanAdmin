@@ -1,20 +1,52 @@
 import createSagaMiddleware from "@redux-saga/core";
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { userSaga } from "./features/user/userSaga";
-import { userSlice } from "./features/user/userSlice";
-import { all } from "redux-saga/effects";
+import { productSaga } from "./features/product/productSaga";
+import { customerSaga } from "./features/customer/customerSaga";
+import { orderSaga } from "./features/order/orderSaga";
 
-const saga = createSagaMiddleware();
+import { all } from "redux-saga/effects";
+import userReducer from "./features/user/userSlice";
+import productReducer from "./features/product/productSlice";
+import customerReducer from "./features/customer/customerSlice";
+import orderReducer from "./features/order/orderSlice";
+
+const sagaMiddleware = createSagaMiddleware();
+
+const rootReducer = combineReducers({
+  user: userReducer,
+  product: productReducer,
+  customer: customerReducer,
+  order: orderReducer,
+});
 
 export const store = configureStore({
-  reducer: {
-    user: userSlice,
-  },
-  middleware: [saga],
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(sagaMiddleware),
 });
 
 function* rootSaga() {
-  yield all([userSaga()]);
+  yield all([userSaga(), productSaga(), customerSaga(), orderSaga()]);
 }
 
-saga.run(rootSaga);
+sagaMiddleware.run(rootSaga);
+
+/*
+  
+const sagaMiddleware = createSagaMiddleware();
+
+const rootReducer = combineReducers({
+  user: userReducer,
+  cart: cartReducer,
+  product: productReducer,
+});
+
+export const store = configureStore({
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(sagaMiddleware),
+});
+
+sagaMiddleware.run(rootSaga);
+*/

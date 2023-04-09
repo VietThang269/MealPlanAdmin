@@ -11,10 +11,20 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  requestGetOrders,
+  selectDataOrder,
+} from "../features/order/orderSlice";
 
 const Orders = () => {
   const { classes } = makeStyles();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(requestGetOrders());
+  }, []);
 
   return (
     <Stack>
@@ -63,48 +73,25 @@ const FilterOrder = () => {
 };
 
 export const ListOrders = () => {
-  const elements = [
-    {
-      id: 1,
-      time: "04/04/2023",
-      address: "198D Bạch Mai, Hai Bà Trưng, Hà Nội",
-      method: "COD",
-      amount: 123,
-      status: <Badge color="yellow">Pending</Badge>,
-      action: "",
-    },
-    {
-      id: 2,
-      time: "04/04/2023",
-      address: "198D Bạch Mai, Hai Bà Trưng, Hà Nội",
-      method: "COD",
-      amount: 123,
-      status: <Badge color="yellow">Pending</Badge>,
-      action: "",
-    },
-    {
-      id: 3,
-      time: "04/04/2023",
-      address: "198D Bạch Mai, Hai Bà Trưng, Hà Nội",
-      method: "COD",
-      amount: 123,
-      status: <Badge color="yellow">Pending</Badge>,
-      action: "",
-    },
-    {
-      id: 4,
-      time: "04/04/2023",
-      address: "198D Bạch Mai, Hai Bà Trưng, Hà Nội",
-      method: "COD",
-      amount: 123,
-      status: <Badge color="yellow">Pending</Badge>,
-      action: "",
-    },
-  ];
+  const listData = useSelector(selectDataOrder);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if (listData.length > 0) {
+      const newData = listData?.map((item, _) => ({
+        ...item,
+        method: "COD",
+        status: <Badge color="yellow">Pending</Badge>,
+        action: "",
+      }));
+
+      setData(newData);
+    }
+  }, [listData]);
+
   const ths = (
     <tr>
       <th>ID</th>
-      <th>TIME</th>
       <th>SHIPPING ADDRESS</th>
       <th>METHOD</th>
       <th>AMOUNT</th>
@@ -113,13 +100,12 @@ export const ListOrders = () => {
     </tr>
   );
 
-  const rows = elements.map((element) => (
-    <tr key={element.id}>
-      <td>{element.id}</td>
-      <td>{element.time}</td>
+  const rows = data?.map((element) => (
+    <tr key={element._id}>
+      <td>{element._id}</td>
       <td>{element.address}</td>
       <td>{element.method}</td>
-      <td>{element.amount}</td>
+      <td>{element.total.toFixed(2)}</td>
       <td>{element.status}</td>
       <td>{element.action}</td>
     </tr>

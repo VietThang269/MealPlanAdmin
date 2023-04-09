@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -18,11 +18,22 @@ import { toast } from "react-toastify";
 import IconFb from "../assets/icons/IconFb";
 import IconGoogle from "../assets/icons/IconGoogle";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  requestSignIn,
+  selectIsLogin,
+  selectResponseUser,
+} from "../features/user/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { classes } = makeStyles();
+  const [submit, setSubmit] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const isLoginUser = useSelector(selectIsLogin);
+  const reponseUser = useSelector(selectResponseUser);
 
   const form = useForm({
     initialValues: {
@@ -32,8 +43,23 @@ const Login = () => {
   });
 
   function handleSignIn(values) {
-    console.log("values", values);
+    setSubmit(true);
+    dispatch(
+      requestSignIn({ email: values.email, password: values.password, role: 1 })
+    );
   }
+
+  useEffect(() => {
+    if (submit && !reponseUser.loading) {
+      toast(reponseUser.message);
+    }
+  }, [reponseUser.loading]);
+
+  useEffect(() => {
+    if (isLoginUser) {
+      navigate("/");
+    }
+  }, [isLoginUser]);
 
   return (
     <Container className={classes.container}>
@@ -55,11 +81,13 @@ const Login = () => {
                 type="email"
                 label="Email"
                 classNames={{ input: classes.inputEmail }}
+                {...form.getInputProps("email")}
               />
               <PasswordInput
                 placeholder="Password"
                 label="Password"
                 classNames={{ input: classes.inputPassword }}
+                {...form.getInputProps("password")}
               />
 
               <Button type="submit" className={classes.button}>
