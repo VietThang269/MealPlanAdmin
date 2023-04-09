@@ -5,7 +5,7 @@ import { requestSignIn, responseSignIn } from "./userSlice";
 
 function* handleSignIn(action) {
   try {
-    const response = yield apiPost("/user/sign-in-admin", action.payload, {});
+    const response = yield apiPost("user/sign-in-admin", action.payload, {});
 
     if (response.data) {
       const { id, email, role } = response.data;
