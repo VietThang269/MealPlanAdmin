@@ -35,6 +35,7 @@ import { useForm } from "@mantine/form";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { apiDelete, apiPost, apiPut } from "../utils/https/request";
+import ModalProductDetail from "../components/ModalProductDetail";
 
 const Products = () => {
   const { classes } = makeStyles();
@@ -553,8 +554,16 @@ const ListProducts = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const dispatch = useDispatch();
 
+  const [openedDetailModal, setOpenedDetailModal] = useState(false);
+
   function hanldeEdit(id) {
     open();
+    const item = list.find((item, _) => item._id === id);
+    setFilterData(item);
+  }
+
+  function handleDetail(id) {
+    setOpenedDetailModal(true);
     const item = list.find((item, _) => item._id === id);
     setFilterData(item);
   }
@@ -580,7 +589,11 @@ const ListProducts = () => {
         component: item.component.join(" & "),
         stock: 20,
         status: <Badge color="green">Sell</Badge>,
-        detail: <IconDetail />,
+        detail: (
+          <Box onClick={() => handleDetail(item._id)}>
+            <IconDetail />
+          </Box>
+        ),
         published: <IconPublish />,
         action: (
           <Flex align="center" justify="center" gap={5}>
@@ -629,7 +642,7 @@ const ListProducts = () => {
       <td>{element.price}</td>
       <td>{element.stock}</td>
       <td>{element.status}</td>
-      <td>{element.discount}%</td>
+      <td>{element.discount ? `${element.discount} %` : ""}</td>
       <td>{element.detail}</td>
       <td>{element.published}</td>
       <td>{element.action}</td>
@@ -647,6 +660,12 @@ const ListProducts = () => {
         opened={opened}
         open={open}
         close={close}
+        data={filterData}
+      />
+
+      <ModalProductDetail
+        opened={openedDetailModal}
+        setOpened={setOpenedDetailModal}
         data={filterData}
       />
     </Stack>

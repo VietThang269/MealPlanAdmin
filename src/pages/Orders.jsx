@@ -116,8 +116,6 @@ export const ListOrders = () => {
         <thead>{ths}</thead>
         <tbody>{rows}</tbody>
       </Table>
-
-      <Pagination total={10} />
     </Stack>
   );
 };
