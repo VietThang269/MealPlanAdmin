@@ -115,7 +115,6 @@ export const ListOrders = () => {
       <th>ID</th>
       <th>SHIPPING ADDRESS</th>
       <th>METHOD</th>
-      <th>AMOUNT</th>
       <th>STATUS</th>
       <th>ACTION</th>
     </tr>
@@ -126,7 +125,6 @@ export const ListOrders = () => {
       <td>{element._id}</td>
       <td>{element.address}</td>
       <td>{element.method}</td>
-      <td>{element.total.toFixed(2)}</td>
       <td>{element.status}</td>
       <td>{element.action}</td>
     </tr>
