@@ -2,6 +2,7 @@ import {
   Badge,
   Box,
   Button,
+  Center,
   createStyles,
   Flex,
   Image,
@@ -16,21 +17,26 @@ import {
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  requestFetching,
   requestGetOrders,
   selectDataOrder,
+  selectIsFetching,
 } from "../features/order/orderSlice";
 import IconDetail from "../assets/icons/IconDetail";
-import { apiGet } from "../utils/https/request";
+import { apiGet, apiPut } from "../utils/https/request";
 
 import Logo from "../assets/imgs/Logo.png";
+import { toast } from "react-toastify";
 
 const Orders = () => {
   const { classes } = makeStyles();
   const dispatch = useDispatch();
 
+  const isFetching = useSelector(selectIsFetching);
+
   useEffect(() => {
     dispatch(requestGetOrders());
-  }, []);
+  }, [isFetching]);
 
   return (
     <Stack>
@@ -84,13 +90,53 @@ export const ListOrders = () => {
   const [item, setItem] = useState(null);
   const [opened, setOpened] = useState(false);
 
+  const dispatch = useDispatch();
+
+  async function handleChangeStatus(value, id) {
+    const response = await apiPut(`order/${id}`, { status: value }, {});
+    if (response.error === 0) {
+      toast("Cập nhật trạng thái đơn hàng thành công!", { type: "success" });
+      dispatch(requestFetching());
+    }
+  }
+
+  function renderBadge(title) {
+    switch (title) {
+      case "pending":
+        return <Badge color="yellow">{title}</Badge>;
+      case "delivering":
+        return <Badge color="blue">{title}</Badge>;
+      case "delivered":
+        return <Badge color="green">{title}</Badge>;
+      case "cancel":
+        return <Badge color="red">{title}</Badge>;
+      default:
+        return <Badge color="yellow">{title}</Badge>;
+    }
+  }
+
   useEffect(() => {
     if (listData.length > 0) {
       const newData = listData?.map((item, _) => ({
         ...item,
         method: "COD",
-        status: <Badge color="yellow">Pending</Badge>,
+        status: renderBadge(item?.status),
         action: (
+          <Center>
+            <Select
+              value={item?.status}
+              onChange={(value) => handleChangeStatus(value, item._id)}
+              data={[
+                { value: "pending", label: "Pending" },
+                { value: "delivering", label: "Delivering" },
+                { value: "delivered", label: "Delivered" },
+                { value: "cancel", label: "Cancel" },
+              ]}
+              w={120}
+            />
+          </Center>
+        ),
+        detail: (
           <Box
             style={{ cursor: "pointer" }}
             onClick={() => handleDetail(item._id)}
@@ -117,6 +163,7 @@ export const ListOrders = () => {
       <th>METHOD</th>
       <th>STATUS</th>
       <th>ACTION</th>
+      <th>DETAIL</th>
     </tr>
   );
 
@@ -127,6 +174,7 @@ export const ListOrders = () => {
       <td>{element.method}</td>
       <td>{element.status}</td>
       <td>{element.action}</td>
+      <td>{element.detail}</td>
     </tr>
   ));
   return (
@@ -141,6 +189,8 @@ export const ListOrders = () => {
 };
 
 const ModalOrderDetail = ({ data, opened, setOpened }) => {
+  const dispatch = useDispatch();
+
   function calcTotal(data) {
     if (data) {
       const listTotal = data.list?.map((item, _) => item.price * item.quanity);
@@ -149,6 +199,16 @@ const ModalOrderDetail = ({ data, opened, setOpened }) => {
       return total;
     }
     return 0;
+  }
+
+  async function handleCheckout(data) {
+    const { _id } = data;
+    const response = await apiPut(`order/${_id}`, { status: "delivered" }, {});
+    setOpened(false);
+    if (response.error === 0) {
+      toast("Cập nhật trạng thái đơn hàng thành công!", { type: "success" });
+      dispatch(requestFetching());
+    }
   }
 
   return (
@@ -208,11 +268,13 @@ const ModalOrderDetail = ({ data, opened, setOpened }) => {
             <Text fw="bold">
               Status:{" "}
               <Text display="inline" fw="normal">
-                Pending
+                {data?.status}
               </Text>
             </Text>
           </Stack>
-          <Button w="100%">Checkout</Button>
+          <Button w="100%" onClick={() => handleCheckout(data)}>
+            Checkout
+          </Button>
         </Stack>
       </Flex>
     </Modal>

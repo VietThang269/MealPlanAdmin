@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   data: [],
+  isFetching: false,
   loading: false,
 };
 
@@ -13,6 +14,10 @@ export const orderSlice = createSlice({
       state.loading = true;
     },
 
+    requestFetching(state) {
+      state.isFetching = !state.isFetching;
+    },
+
     responseGetOrders(state, action) {
       state.loading = false;
       state.data = action.payload;
@@ -21,8 +26,10 @@ export const orderSlice = createSlice({
 });
 
 export const selectDataOrder = (state) => state.order.data;
+export const selectIsFetching = (state) => state.order.isFetching;
 
 // Action creators are generated for each case reducer function
-export const { requestGetOrders, responseGetOrders } = orderSlice.actions;
+export const { requestGetOrders, responseGetOrders, requestFetching } =
+  orderSlice.actions;
 
 export default orderSlice.reducer;
