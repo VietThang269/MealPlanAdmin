@@ -44,9 +44,7 @@ const Login = () => {
 
   function handleSignIn(values) {
     setSubmit(true);
-    dispatch(
-      requestSignIn({ email: values.email, password: values.password, role: 1 })
-    );
+    dispatch(requestSignIn({ email: values.email, password: values.password }));
   }
 
   useEffect(() => {
