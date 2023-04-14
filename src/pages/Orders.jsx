@@ -252,7 +252,7 @@ const ModalOrderDetail = ({ data, opened, setOpened }) => {
             <Text fw="bold">
               Customer name:{" "}
               <Text display="inline" fw="normal">
-                Thắng nè
+                {data?.userId}
               </Text>
             </Text>
           </Stack>
